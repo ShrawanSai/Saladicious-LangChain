@@ -6,13 +6,13 @@ st.sidebar.header("Saladicious Ingredient Usage Forecaster")
 
 st.title("Saladicious Ingredient Usage Forecaster")
 
-st.header("Predit how much of each ingredient needs to be in stock for a particular date based on past usage data")
+st.header("Predict how much of each ingredient needs to be in stock for a particular date based on past usage data")
 st.write("This tool will predict how much of each ingredient needs to be in stock for a particular date based on past usage data. Simply enter the date and other details and the AI will do the rest!")
 number_of_serving_communities = st.number_input("Enter the number of communities you are serving:", min_value=1, max_value=100)
 date = st.date_input("Enter the date for which you want to predict the ingredient usage:")
 sample_given = st.checkbox("Do you intend to give out samples on this date?")
 
-if st.button("Generate Similar Salad recipes") and number_of_serving_communities and date:
+if st.button("Get estimates") and number_of_serving_communities and date:
     with st.spinner("Coming up with estimates..."):
         if sample_given:
             sample_given = 1
