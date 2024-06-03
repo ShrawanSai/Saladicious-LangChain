@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 import os
-from nutrientanalysis import get_ai_analysis, get_total_calories_and_stats
+from backend import nutrientanalysis
 import requests
 from langchain_core.prompts import PromptTemplate
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI, OpenAI
@@ -50,15 +50,21 @@ def get_best_pairings(ingredient:str, category:str) -> Any:
 
 def nutritional_analysis(ingridients:str) -> Any:
 
+    clean_ingridients,quantities = nutrientanalysis.clean_salad_ingredients_list(ingridients)
+
     api_url = 'https://api.calorieninjas.com/v1/nutrition?query='
-    response = requests.get(api_url + ingridients,
+    response = requests.get(api_url + clean_ingridients,
                              headers=
                              {'X-Api-Key': os.getenv("CALORIE_NINJA_API_KEY")
                                })
     if response.status_code == requests.codes.ok:
-        calorie_summary, total_stats, individual_ingredients_stats = get_total_calories_and_stats(response.json()['items'])
-        suggestions = get_ai_analysis(calorie_summary)
-        return suggestions, total_stats, individual_ingredients_stats
+        json_obj = []
+        for item in response.json()['items']:
+            if item['name'] in clean_ingridients:
+                json_obj.append(item)
+        calorie_summary, total_stats, individual_ingredients_stats = nutrientanalysis.get_total_calories_and_stats(response.json()['items'],quantities)
+        suggestions = nutrientanalysis.get_ai_analysis(calorie_summary)
+        return suggestions, total_stats, individual_ingredients_stats, clean_ingridients
     else:
         print("Error:", response.status_code, response.text)
 
@@ -70,19 +76,19 @@ if __name__ == "__main__":
     query3 = "What dressings are low fat? Give me a list of dressings."
     query4 = "Give me a list of high protien ingridents I can add with potatoes. Give me a numbered list of ingridents."
 
-    print(nutritional_analysis("beetroot carrot apple banana"))
+    #print(nutritional_analysis("beetroot carrot apple banana"))
     
-    print(get_ai_analysis("""1. total_calories: 221.6
-        2. total_fat: 0.9000000000000001
-        3. total_protein: 3.9
-        4. total_carbs: 55.599999999999994
-        5. total_sugar: 34.0
-        6. total_sodium: 135.0
-        7. total_fat_saturated: 0.1
-        8. total_cholesterol: 0.0
-        9. total_fiber: 10.0
-        10. toal_pottasium: 101.0"""))
-            #result = run_llm(query4)['result']
+    # print(nutrientanalysis.get_ai_analysis("""1. total_calories: 221.6
+    #     2. total_fat: 0.9000000000000001
+    #     3. total_protein: 3.9
+    #     4. total_carbs: 55.599999999999994
+    #     5. total_sugar: 34.0
+    #     6. total_sodium: 135.0
+    #     7. total_fat_saturated: 0.1
+    #     8. total_cholesterol: 0.0
+    #     9. total_fiber: 10.0
+    #     10. toal_pottasium: 101.0"""))
+    #         #result = run_llm(query4)['result']
 
     #print(result)
     

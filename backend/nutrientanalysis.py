@@ -8,7 +8,27 @@ import os
 load_dotenv()
 
 
-def get_total_calories_and_stats(ingridients:List) -> Any:
+def get_total_calories_and_stats(ingridients:List, quantities:List) -> Any:
+
+
+    ingridient_stats_df = pd.DataFrame(ingridients)
+    if len(ingridient_stats_df) != len(quantities):
+        if len(quantities) > len(ingridient_stats_df):
+            quantities = quantities[:len(ingridient_stats_df)]
+        else:
+            quantities = quantities + [0] * (len(ingridient_stats_df) - len(quantities))
+    
+
+    for column in ingridient_stats_df.columns:
+            if column.lower() == 'name':
+                continue
+            ingridient_stats_df[column] = ingridient_stats_df[column] / ingridient_stats_df['serving_size_g']
+
+    ingridient_names_df = ingridient_stats_df['name']
+    ingredient_quantities_df = ingridient_stats_df.drop(columns=['name']).multiply(quantities, axis=0)
+    
+    ingridient_stats_df = pd.concat([ingridient_names_df, ingredient_quantities_df], axis=1)
+
 
     total_calories = 0
     total_fat = 0
@@ -21,10 +41,8 @@ def get_total_calories_and_stats(ingridients:List) -> Any:
     total_fiber = 0
     toal_pottasium = 0
 
-    ingridient_stats_list = []
-    
-    for ingridient in ingridients:
-        total_calories += float(ingridient['calories'])
+    for index, ingridient in ingridient_stats_df.iterrows():
+        total_calories += int(ingridient['calories'])
         total_fat += float(ingridient['fat_total_g'])
         total_protein += float(ingridient['protein_g'])
         total_carbs += float(ingridient['carbohydrates_total_g'])
@@ -34,7 +52,7 @@ def get_total_calories_and_stats(ingridients:List) -> Any:
         total_cholesterol += float(ingridient['cholesterol_mg'])
         total_fiber += float(ingridient['fiber_g'])
         toal_pottasium += float(ingridient['potassium_mg'])
-        ingridient_stats_list.append(ingridient)
+    
     
     total_stats = {
         "total_calories": total_calories,
@@ -49,10 +67,8 @@ def get_total_calories_and_stats(ingridients:List) -> Any:
         "toal_pottasium": toal_pottasium
     }
 
+    calorie_summary = "\n".join([f"{index+1}. {key.replace('_', ' ').capitalize()}: {value}" for index, (key, value) in enumerate(total_stats.items())])
 
-    ingridient_stats_df = pd.DataFrame(ingridient_stats_list)
-    calorie_summary = "\n".join([f"{index+1}. {key}: {value}" for index, (key, value) in enumerate(total_stats.items())])
-    
     return calorie_summary,total_stats, ingridient_stats_df
 
 
@@ -94,6 +110,55 @@ Extras (like dressings and toppings): Use sparingly for added flavor and texture
 
     llm_chain = prompt | llm
 
-    question = "What NFL team won the Super Bowl in the year Justin Beiber was born?"
+    return llm_chain.invoke(salad_info)
 
-    return llm_chain.invoke(question)
+def clean_salad_ingredients_list(salad_info:str) -> Any:
+
+    template = """Reading through the salad ingredients list, identify all the ingredients and their quantities.
+    Then create a numbered list of the ingredients and their quantities in the following format:
+    1. Ingredient 1 serving size : Quantity 1 (in grams)
+    2. Ingredient 2 serving size: Quantity 2 (in grams)
+    
+    The salad ingredients list is: 
+    {salad_info}
+    NO OTHER INFORMATION IS NEEDED. Just the give the numbered list of ingredients and quantities.
+    Answer:"""
+
+    template2 = """
+    Create a single line which is a comma separated list with all of the quantities in grams for each item. If the 
+    quantity is not available in grams, add a 0 for that item.
+    The list should be in the following format:
+    Quantity1, Quantity2, Quantity3, Quantity4, Quantity5
+
+    The length of the list should be equal to the number of ingredients in the salad. {length} in this case.
+
+    The salad ingredients list is:
+    {text}
+
+    Give only the comma separated list of {length} quantities in grams and nothing else.
+    """
+
+    prompt = PromptTemplate.from_template(template)
+
+    llm = OpenAI(openai_api_key=os.getenv("OPENAI_API_KEY"))
+
+    llm_chain = prompt | llm
+
+    text = llm_chain.invoke(salad_info)
+    length = text.count("\n")
+
+    prompt2 = PromptTemplate.from_template(template2)
+    llm_chain = prompt2 | llm
+    quantities = llm_chain.invoke(
+        {
+            "text": text, 
+            "length": length
+        }
+    )
+    quantities = quantities.split(",")
+    quantities = [float(x.strip()) for x in quantities]
+    #quantities = [x.split(":")[-2].strip() for x in text.split("\n")]
+    print(quantities)
+    
+
+    return text,quantities
