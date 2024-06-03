@@ -27,4 +27,8 @@ streamlit
 streamlit-chat
 tqdm
 pypdf
+sentence-transformers
+pandas
+scikit-learn
+joblib
 
