@@ -22,6 +22,7 @@ def run_llm(query:str) ->Any:
     chat = ChatOpenAI(verbose=True, temperature=0)
 
     qa = RetrievalQA.from_chain_type(llm = chat, chain_type = "stuff", retriever = docsearch.as_retriever(), return_source_documents = True)
+    print(qa({"query":query}))
 
     return qa({"query":query})
 
