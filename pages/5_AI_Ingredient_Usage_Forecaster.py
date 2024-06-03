@@ -12,7 +12,7 @@ number_of_serving_communities = st.number_input("Enter the number of communities
 date = st.date_input("Enter the date for which you want to predict the ingredient usage:")
 sample_given = st.checkbox("Do you intend to give out samples on this date?")
 
-if st.button("Generate Similar Salad recipes") and number_of_serving_communities and date and sample_given:
+if st.button("Generate Similar Salad recipes") and number_of_serving_communities and date:
     with st.spinner("Coming up with estimates..."):
         if sample_given:
             sample_given = 1
@@ -21,19 +21,19 @@ if st.button("Generate Similar Salad recipes") and number_of_serving_communities
         res = predict_usage(number_of_serving_communities=number_of_serving_communities, sample_given=sample_given, date=date)
         for d in res:
             if "Lettuce_Usage" in d:
-                st.subheader("Lettuce Usage (in g) :")
+                st.subheader("Lettuce Usage (in kg) :")
                 st.markdown(res[d])
             if "Tomato_Usage" in d:
-                st.subheader("Tomato Usage (in g) :")
+                st.subheader("Tomato Usage (in kg) :")
                 st.markdown(res[d])
             if "Chicken_Usage" in d:
-                st.subheader("Chicken Usage (in g) :")
+                st.subheader("Chicken Usage (in kg) :")
                 st.markdown(res[d])
             if "Cheese_Usage" in d:
                 st.subheader("Cheese Usage (Packets used) :")
                 st.markdown(res[d])
             if "Onion_Usage" in d:
-                st.subheader("Onion Usage (in g) :")
+                st.subheader("Onion Usage (in kg) :")
                 st.markdown(res[d])
             
       
