@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salad Menu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0fff0; /* Light green background */
+            color: #2e8b57; /* Dark green text */
+            text-align: center;
+        }
+        h1 {
+            background-color: #006400; /* Darker green for heading background */
+            color: #fff; /* White text for the heading */
+            padding: 20px;
+            margin: 0;
+        }
+        #salad-menu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .salad-item {
+            border: 1px solid #2e8b57;
+            border-radius: 5px;
+            background-color: #fff; /* White background for salad items */
+            padding: 15px;
+            margin-bottom: 15px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 4px 8px rgba(0, 128, 0, 0.1);
+            text-align: left;
+        }
+        .salad-item h2 {
+            margin: 0 0 10px 0;
+            color: #006400; /* Darker green for salad names */
+        }
+        .salad-item p {
+            margin: 5px 0;
+        }
+        .salad-item .label {
+            font-weight: bold;
+        }
+        @media (max-width: 600px) {
+            .salad-item {
+                width: 100%;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Saladicious Weekly Salad Menu</h1>
+    <div id="salad-menu"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const apiEndpoint = 'https://script.google.com/macros/s/AKfycbxr4YdJWkj879Bqa0Bw64ou1RcO4Ili324d6tNU2vUAoyHfJH3InLf8GhHQ2mBGfzdP/exec?path=Sheet1&action=read';  // Replace with actual API endpoint
+            fetch(apiEndpoint)
+                .then(response => response.json())
+                .then(data => {
+                    const salads = data.data;
+                    const saladMenuDiv = document.getElementById('salad-menu');
+
+                    salads.forEach(salad => {
+                        const saladItemDiv = document.createElement('div');
+                        saladItemDiv.classList.add('salad-item');
+
+                        const saladName = document.createElement('h2');
+                        saladName.textContent = `${salad['Day of Week']} - ${salad['Salad Name']}`;
+                        saladItemDiv.appendChild(saladName);
+
+                        const saladDate = document.createElement('p');
+                        saladDate.innerHTML = `<span class="label">Date:</span> ${new Date(salad['Date']).toDateString()}`;
+                        saladItemDiv.appendChild(saladDate);
+
+                        const saladDescription = document.createElement('p');
+                        saladDescription.innerHTML = `<span class="label">Description:</span> ${salad['Salad Description']}`;
+                        saladItemDiv.appendChild(saladDescription);
+
+                        const saladNutritionalValue = document.createElement('p');
+                        saladNutritionalValue.innerHTML = `<span class="label">Nutritional Value:</span> ${salad['Nutritional Value']}`;
+                        saladItemDiv.appendChild(saladNutritionalValue);
+
+                        saladMenuDiv.appendChild(saladItemDiv);
+                    });
+                })
+                .catch(error => console.error('Error fetching the data:', error));
+        });
+    </script>
+</body>
+</html>
