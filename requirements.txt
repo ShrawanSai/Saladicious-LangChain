@@ -19,7 +19,6 @@ tiktoken
 pinecone-client
 unstructured
 nltk
-python-magic-bin
 fastapi
 jinja2
 uvicorn
