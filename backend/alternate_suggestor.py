@@ -10,12 +10,19 @@ from sentence_transformers import SentenceTransformer
 import joblib
 import random
 
+# Download NLTK data files if not already downloaded
+nltk.download('punkt', quiet=True)
+nltk.download('stopwords', quiet=True)
+nltk.download('wordnet', quiet=True)
+nltk.download('averaged_perceptron_tagger', quiet=True)
+
 df = pd.read_csv('backend/train_salad_clustered.csv')
 s_df = pd.read_csv('backend/salads_clustered.csv')
 
 import nltk
 from sentence_transformers import SentenceTransformer
 from sklearn.cluster import  KMeans
+import nltk
 
 # Download NLTK data files
 nltk.download('punkt')
