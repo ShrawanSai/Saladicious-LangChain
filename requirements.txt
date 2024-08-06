@@ -1,7 +1,6 @@
 requests
 langchain
 black
-openai
 install
 google-search-results
 tweepy
@@ -31,3 +30,4 @@ pandas
 scikit-learn
 joblib
 matplotlib
+openai
