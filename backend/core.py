@@ -2,8 +2,7 @@ from dotenv import load_dotenv
 import os
 from backend import nutrientanalysis
 import requests
-from langchain_core.prompts import PromptTemplate
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI, OpenAI
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain.chains import RetrievalQA, ConversationalRetrievalChain
 from pinecone import Pinecone
 from langchain_community.vectorstores import Pinecone as PineconeLangChain
